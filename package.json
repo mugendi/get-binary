@@ -1,46 +1,46 @@
 {
-  "name": "get-binary",
-  "version": "0.1.0",
-  "main": "index.js",
-  "license": "MIT",
-  "dependencies": {
-    "aproba": "^2.0.0",
-    "chalk": "^4.1.1",
-    "decompress": "^4.2.1",
-    "download": "^8.0.0",
-    "fast-glob": "^3.2.7",
-    "fs-extra": "^10.0.0",
-    "is-absolute-url": "^3.0.3",
-    "log-update": "^4.0.0",
-    "move-file": "^2.1.0",
-    "mv": "^2.1.1",
-    "rimraf": "^3.0.2",
-    "which": "^2.0.2"
-  },
-  "description": "Automated module to fetch all your 3rd party binaries to power your nodejs applications",
-  "directories": {
-    "lib": "lib"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "3rd",
-    "party",
-    "binaries",
-    "download",
-    "extract",
-    "hash",
-    "apps"
-  ],
-  "author": "Anthony Mugendi <ngurumugz@gmail.com>",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mugendi/get-binary.git"
-  },
-  "bugs": {
-    "url": "https://github.com/mugendi/get-binary/issues"
-  },
-  "homepage": "https://github.com/mugendi/get-binary#readme"
+    "name": "get-binary",
+    "version": "0.1.1",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+        "aproba": "^2.0.0",
+        "chalk": "^4.1.1",
+        "decompress": "^4.2.1",
+        "download": "^8.0.0",
+        "fast-glob": "^3.2.7",
+        "fs-extra": "^10.0.0",
+        "is-absolute-url": "^3.0.3",
+        "log-update": "^4.0.0",
+        "move-file": "^2.1.0",
+        "mv": "^2.1.1",
+        "rimraf": "^3.0.2",
+        "which": "^2.0.2"
+    },
+    "description": "Automated module to fetch all your 3rd party binaries to power your nodejs applications",
+    "directories": {
+        "lib": "lib"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "3rd",
+        "party",
+        "binaries",
+        "download",
+        "extract",
+        "hash",
+        "apps"
+    ],
+    "author": "Anthony Mugendi <ngurumugz@gmail.com>",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mugendi/get-binary.git"
+    },
+    "bugs": {
+        "url": "https://github.com/mugendi/get-binary/issues"
+    },
+    "homepage": "https://github.com/mugendi/get-binary#readme"
 }

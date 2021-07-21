@@ -122,7 +122,7 @@ class Helper {
         let binaryVerified = await this.__verify_binary_data(downloadedBinaries[opt.url]);
 
         if (downloadedBinaries[opt.url] && binaryVerified) {
-            this.whichBinary = downloadedBinaries[opt.url];
+            this.whichBinary = downloadedBinaries[opt.url].binary;
             return false;
         }
 
