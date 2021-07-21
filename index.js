@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const { on } = require('events');
-
-
 const os = require('os'),
     path = require('path'),
     which = require('which'),
@@ -119,7 +116,7 @@ class Helper {
         let downloadedBinaries = fs.existsSync(this.downloadedBinariesFile) ? fs.readJSONSync(this.downloadedBinariesFile) : {};
         // console.log({ downloadedBinariesFile, downloadedBinaries });
 
-        let binaryVerified = await this.__verify_binary_data(downloadedBinaries[opt.url]);
+        let binaryVerified = (!opt.verifyBinary || await this.__verify_binary_data(downloadedBinaries[opt.url]));
 
         if (downloadedBinaries[opt.url] && binaryVerified) {
             this.whichBinary = downloadedBinaries[opt.url].binary;
@@ -306,6 +303,9 @@ class Getbinary extends Helper {
 
         // loop thru
         for (let opt of binaryOpts) {
+
+            // add some defaults
+            opt = Object.assign({ verifyBinary: true }, opt);
 
             this.__validate_opt(opt);
 

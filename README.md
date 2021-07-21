@@ -109,6 +109,9 @@ Binary Options is always an array of binaries to download. Multiple binaries can
 
 - **os :** (optional) an object containing the ```platform``` and ```arch``` variations. If missing, then binary is downloaded for all operating systems.
 
+- **verifyBinary :** flag that determines if verification of existing binary is to be done. Defaults to **true**; Set false to disable verification. Sometimes binaries will write logs and the the like within their own directories thus invalidation their hashes. This will cause the binary to always download a new copy which may be undesirable. In such a case, set this flag to **false**.
+
+
 - **dir :** (optional) the directory where your binaries should be installed. Unless you have very specific reasons, do not use this option. get-binary automatically uses **/home/.node_binaries** as a central location for all your binaries. This is a good thing so that all your projects can reuse the same binaries where possible instead of duplicating them across your apps.
 
 
