@@ -114,4 +114,6 @@ Binary Options is always an array of binaries to download. Multiple binaries can
 
 ## Sample Installation for multiple binaries
 
+Have a look at this [test file](https://github.com/mugendi/get-binary/blob/master/test.js) for a good example on how to get multiple binaries across different platforms.
+
 
