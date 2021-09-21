@@ -112,14 +112,24 @@ class Helper {
     async __binary_not_downloaded(opt) {
         validate("O", arguments);
 
-        this.downloadedBinariesFile = path.join(this.binariesDir, "downloaded-binary.json")
+        this.downloadedBinariesFile = path.join(this.binariesDir, "downloaded-binary.json");
+
         let downloadedBinaries = fs.existsSync(this.downloadedBinariesFile) ? fs.readJSONSync(this.downloadedBinariesFile) : {};
+
         // console.log({ downloadedBinariesFile, downloadedBinaries });
 
         let binaryVerified = (!opt.verifyBinary || await this.__verify_binary_data(downloadedBinaries[opt.url]));
 
+
         if (downloadedBinaries[opt.url] && binaryVerified) {
+            let binaryPath = path.resolve(downloadedBinaries[opt.url].binary);
+
+            if(fs.existsSync(binaryPath)===false){
+                return true;
+            }
+
             this.whichBinary = downloadedBinaries[opt.url].binary;
+
             return false;
         }
 
