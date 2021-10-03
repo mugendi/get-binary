@@ -23,9 +23,9 @@ const os = require('os'),
     download = require('download'),
     decompress = require('decompress'),
     moveFile = require('move-file'),
-    crypto = require('crypto'),
     fg = require('fast-glob'),
     ProgressBar = require('./lib/progress-bar'),
+    { hashElement } = require('folder-hash'),
     progressBar = new ProgressBar();
 
 
@@ -68,22 +68,19 @@ class Helper {
 
         const entries = await fg([path.join(dir, "*"), path.join(dir, "**/*")], { dot: true, deep: 2, stats: true });
 
+        let size = entries.reduce((a, b) => a + b.stats.size, 0);
 
-        let size = entries.reduce((a, b) => a + b.stats.size, 0),
-            modifiedTimesStr = entries.map(o => {
-                return JSON.stringify({
-                    atime: o.stats.atime,
-                    mtime: o.stats.mtime,
-                    ctime: o.stats.ctime
-                })
-            }).join(' & '),
-            pathStr = entries.map(o => o.path).join(' & '),
-            hash1 = crypto.createHash('sha256').update(pathStr).digest('hex'),
-            hash2 = crypto.createHash('sha256').update(modifiedTimesStr).digest('hex'),
-            hash = crypto.createHash('sha256').update(`${hash1} & ${hash2}`).digest('hex')
+            return hashElement(dir, {})
+            .then(resp => {
+                return {
+                    size,
+                    hash:resp.hash
+                };
+            })
+            .catch(error => {
+                return console.error('hashing failed:', error);
+            });
 
-
-        return { hash, size }
 
     }
 
@@ -91,6 +88,9 @@ class Helper {
         validate("O", arguments);
 
         let hashObj = await this.__get_folder_file_hash(binaryObj.binary);
+
+
+        console.log(hashObj, binaryObj);
 
 
         return hashObj.size == binaryObj.size && hashObj.hash == binaryObj.hash;
@@ -112,24 +112,14 @@ class Helper {
     async __binary_not_downloaded(opt) {
         validate("O", arguments);
 
-        this.downloadedBinariesFile = path.join(this.binariesDir, "downloaded-binary.json");
-
+        this.downloadedBinariesFile = path.join(this.binariesDir, "downloaded-binary.json")
         let downloadedBinaries = fs.existsSync(this.downloadedBinariesFile) ? fs.readJSONSync(this.downloadedBinariesFile) : {};
-
         // console.log({ downloadedBinariesFile, downloadedBinaries });
 
         let binaryVerified = (!opt.verifyBinary || await this.__verify_binary_data(downloadedBinaries[opt.url]));
 
-
         if (downloadedBinaries[opt.url] && binaryVerified) {
-            let binaryPath = path.resolve(downloadedBinaries[opt.url].binary);
-
-            if(fs.existsSync(binaryPath)===false){
-                return true;
-            }
-
             this.whichBinary = downloadedBinaries[opt.url].binary;
-
             return false;
         }
 
