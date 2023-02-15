@@ -119,8 +119,8 @@ This argument should be an array containing details for each binary to be instal
 
 | Property | Description                                                                                                                                             | Required |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| **name**     | `String`<br/> The name of the binary. It is also the name of the binary returned. Example: `{ FFMPEG: [ '/usr/bin/ffmpeg' ] }` where **FFMPEG** was the name entered. | Yes     |
-|      **os**    | `Object`<br/> Holds details about the operating system that the binary is intended for. This Object should contain `platform` and `arch` keys. Example: `{platform: 'windows', arch:   |    No      |
+| **name**     | `String`<br/> The name of the binary. It is also the name of the binary returned. <br/> **Example**: `{FFMPEG:['/usr/bin/ffmpeg']}` where **FFMPEG** was the name entered. | Yes     |
+|      **os**    | `Object`<br/> Holds details about the operating system that the binary is intended for. This Object should contain `platform` and `arch` keys. <br/> **Example**: `{platform:'windows',arch:'x64'}`   |    No      |
 |   **remote**  | `Object`<br/>   Details of where to download the binary from. The object must have a `url` key which must be a valid URL. |    Yes      |
 | **local**| `Object`<br/> Details of where to download the binary to. The object must contain a `dir` and `name`. Values of `dir` and `name` must combine (using `path.join()`) to form a valid path on your machine or else creating binary directories will fail. |  Yes |
 
@@ -133,4 +133,4 @@ This option is useful if you want to force you app to download the latest binari
 
 ## Sample Installation for multiple binaries
 
-Have a look at this [test file](./test.js) for a good example on how to get multiple binaries across different platforms.
+Have a look at this [Test File](./test.js) for a good example on how to get multiple binaries across different platforms.
