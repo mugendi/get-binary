@@ -1,12 +1,12 @@
 <!--
  Copyright 2021 Anthony Mugendi
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
      http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,108 +15,122 @@
 -->
 
 # What?
-This module is used to install and extract binaries required for your apps. 
 
-Think of it as an automated way to ensure that your app has the right binaries to run effectively.
+This module is used to **fetch** and **extract** binaries required for your apps, where no supported binaries are found to be installed or previously downloaded.
+
+# Why?
+I wrote this module at a time when I was building an app that relies on [QuestDB](https://questdb.io/). I needed to be able to deploy the app without having to worry about the existence or lack thereof of **QuestDB** binaries.
 
 # How?
 
-First install ```yarn add get-binary```;
+First install `yarn add get-binary`;
 
 Then start the process by passing the correct options to determine the right binary for each Operating system.
 
-
 ```javascript
+const getB = require('get-binary');
 
-    let getB = require("get-binary");
-
-
-    let binaryOpts = [
-        {
-            which: 'ffplay',
-            os: {
-                platform: 'linux',
-                arch: 'x64'
-            },
+const requiredBinaries = [
+    {
+        // required
+        name: 'FFMPEG',
+        // the os variant to target
+        os: {
+            platform: 'linux',
+            arch: 'x64',
+        },
+        // remote URL to get binary from
+        remote: {
             url: 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.2/ffplay-3.2.2-linux-64.zip',
-           
-           // optional parameter it is advisable not to use this option
-            // dir:'your dir'
-        }
-    ]
+        },
+        // Local values
+        local: {
+            // the command to run in order to check if the binary is already installed
+            // this is run using the "which" command
+            whichCmd: ['ffmpeg'],
+            // directory to save the binary
+            dir: '/path/to/save/binaries',
+            // name of the binary
+            name: 'ffmpeg',
+        },
+    },
+    {
+        name: 'FFMPEG',
+        os: {
+            platform: 'windows',
+            arch: 'x64',
+        },
+        remote: {
+            url: 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.2.1/ffplay-4.2.1-win-64.zip',
+        },
+        local: {
+            whichCmd: ['ffmpeg'],
+            dir: '/path/to/save/binaries',
+            name: 'ffmpeg',
+        },
+    },
+    //{...other os variants or binaries}
+];
 
-    // now get the binaries
-    getB.get(binaryOpts)
-        .then((fetchedBinaries) => {
-            console.log(fetchedBinaries);
-            // all done use the fetchedBinaries.binary to determine where binary has been saved 
-            // Then use it in your app as required
-        })
-        .catch(console.error)
-
+// now get the binaries
+getB.get(requiredBinaries)
+    .then((fetchedBinaries) => {
+        // all binaries fetched....
+        console.log(fetchedBinaries);
+    })
+    .catch(console.error);
 ```
 
-This returns an array as follows:
+## How it works
+
+-   The array of required binaries is filtered using `platform` and `arch` values returned by the [os](https://nodejs.org/api/os.html) module.
+    -   If the `.os` key is missing, then the binary is assumed to match all operating systems. Omitting this key is the way to deal with cross-platform binaries.
+-   Every matched binary is downloaded if:
+    -   The `whichCmd` is missing or when run using [which](https://www.npmjs.com/package/which), does not find any installed binaries and...
+    -   ...no downloaded binary is found at the path given by `local.dir/local.name`
+-   An array of all binaries already existing, or freshly downloaded is returned...
+
+In the example above, the following binaries are returned for my case:
 
 ```javascript
-
-    [
-        {
-            which: 'ffplay',
-            name: 'ffplay',
-            os: { platform: 'linux', arch: 'x64' },
-            url: 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.2/ffplay-3.2.2-linux-64.zip',
-            binary: '/usr/bin/ffplay'
-        }
-    ]
-
-
+{ 
+    binaries: { FFMPEG: [ '/usr/bin/ffmpeg' ] }, 
+    errors: [] 
+}
 ```
 
-# Behind the scenes
+This is because I already have `ffmpeg` installed and the `which` command returns the installation path.
 
-The options object above indicates the following:
-- That we should only attempt this installation if our operating system is **Linux** using the **64-bit processor architecture**.
-
-    Note that you can leave out the **os key/object** and in that case, the binary will be installed on all OS platforms. This is important for cross platform binaries such as many Java based binaries.
-
-- That we should first run ```which ffplay```. 
-    - If ffplay has been previously installed, then we return the that path in the ```binary``` key.
-    - If ffplay has not been installed, then we download it from the path provided, unzip it and return a path to the binary
-    This would return ```javascript  binary:'/home/mugz/.node_binaries/ffplay'``` because get-binary usually uses the **/home** folder to store it's modules.
-
-- The name provided is also used as the binary directory name.
-
-- The module **saves** a list of all downloaded modules in a JSON file so that only one download is necessary.
-
-- After download and extraction, a special hash is generated and saved. This hash is generated from a list of all file names and their stats (not content as that would lead to unpredictable execution files for large binaries). This hash is checked against the binary directory each time and if found to be different, then the binary is downloaded afresh. This check is important to avoid running binaries that may be corrupted for whatever reason.
-
-- In the event that the binary untars into another directory, then the module tries to move the files to the base directory. 
+Otherwise, the binary would have been downloaded, unzipped and the path to the freshly unzipped files returned.
 
 
 # API
 
-## get(Array:binaryOpts)
+## **`getB.get(requiredBinaries, [forceFetch])`**
 
-## Binary Options
-Binary Options is always an array of binaries to download. Multiple binaries can be installed using this single array.
+Returns an object of binaries (already installed or downloaded) as indicated for that operating system, and an array or all errors encountered.
 
-- **url :** (required) link from which to fetch the binary
+### **requiredBinaries**
+Type: `Array` <br/>
+This argument should be an array containing details for each binary to be installed on the specific operating system.
 
-- **name :** (optional) name of the binary. If one is provided, then *get-binary* attempts to extract one form the url. Example: Given ```https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v3.2/ffplay-3.2.2-linux-64.zip``` then the file name will be something like ***ffplay-3**. It is recommended that you always provide a name.
-
-- **which :** (optional) command to be run with the which command to determine if binary is needed
-
-- **os :** (optional) an object containing the ```platform``` and ```arch``` variations. If missing, then binary is downloaded for all operating systems.
-
-- **verifyBinary :** flag that determines if verification of existing binary is to be done. Defaults to **true**; Set false to disable verification. Sometimes binaries will write logs and the the like within their own directories thus invalidation their hashes. This will cause the binary to always download a new copy which may be undesirable. In such a case, set this flag to **false**.
+#### **Binary Details**
 
 
-- **dir :** (optional) the directory where your binaries should be installed. Unless you have very specific reasons, do not use this option. get-binary automatically uses **/home/.node_binaries** as a central location for all your binaries. This is a good thing so that all your projects can reuse the same binaries where possible instead of duplicating them across your apps.
+| Property | Description                                                                                                                                             | Required |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| **name**     | `String`<br/> The name of the binary. It is also the name of the binary returned. Example: `{ FFMPEG: [ '/usr/bin/ffmpeg' ] }` where **FFMPEG** was the name entered. | Yes     |
+|      **os**    | `Object`<br/> Holds details about the operating system that the binary is intended for. This Object should contain `platform` and `arch` keys. Example: `{platform: 'windows', arch:   |    No      |
+|   **remote**  | `Object`<br/>   Details of where to download the binary from. The object must have a `url` key which must be a valid URL. |    Yes      |
+| **local**| `Object`<br/> Details of where to download the binary to. The object must contain a `dir` and `name`. Values of `dir` and `name` must combine (using `path.join()`) to form a valid path on your machine or else creating binary directories will fail. |  Yes |
+
+### **forceFetch**
+Type: `Boolean` <br/>
+If true, then a new binary is always downloaded irrespective of whether `whichCmd` finds an installed binary or one was previously downloaded. If a binary had already been downloaded, then all files will be replaced.
+
+This option is useful if you want to force you app to download the latest binaries.
 
 
 ## Sample Installation for multiple binaries
 
-Have a look at this [test file](https://github.com/mugendi/get-binary/blob/master/test.js) for a good example on how to get multiple binaries across different platforms.
-
-
+Have a look at this [test file](./test.js) for a good example on how to get multiple binaries across different platforms.
